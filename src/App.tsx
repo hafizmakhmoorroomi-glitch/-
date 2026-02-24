@@ -21,7 +21,7 @@ function App() {
     if (!input.trim() || loading) return;
 
     if (!API_KEY) {
-      setMessages(prev => [...prev, { role: 'bot', text: 'خرابی: API Key (VITE_GEMINI_API_KEY) نہیں مل رہی۔ براہ کرم ورسل سیٹنگز چیک کریں۔' }]);
+      setMessages(prev => [...prev, { role: 'bot', text: 'سسٹم کی ترتیب میں غلطی ہے: API Key نہیں مل رہی۔ براہ کرم ورسل سیٹنگز میں VITE_GEMINI_API_KEY چیک کریں۔' }]);
       return;
     }
 
@@ -31,14 +31,12 @@ function App() {
     setLoading(true);
 
     try {
-      // یہاں ہم نے apiVersion کو 'v1beta' کر دیا ہے تاکہ 404 ایرر ختم ہو جائے
+      // یہاں ہم نے ورژن کی سختی ختم کر دی ہے تاکہ 404 ایرر نہ آئے
       const genAI = new GoogleGenerativeAI(API_KEY);
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash" 
-      }, { apiVersion: 'v1beta' });
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
       const prompt = `آپ سلسلہ عالیہ قادریہ رضویہ کے ایک مستند روحانی معالج اور ماہرِ علم الاعداد ہیں۔
-      سائل کا پیغام: "${userMsg}"
+      سائل کا نام اور مسئلہ: "${userMsg}"
       
       آپ کے فرائض:
       1. سائل کے نام اور والدہ کے نام کے اعداد 'ابجدِ قمری' سے نکال کر بتائیں۔
@@ -57,15 +55,15 @@ function App() {
       }
     } catch (error: any) {
       console.error("API Error:", error);
-      // یہاں ہم نے واضح میسج دیا ہے تاکہ اگر پھر بھی مسئلہ ہو تو ہمیں پتہ چلے
-      setMessages(prev => [...prev, { role: 'bot', text: `معذرت، رابطہ کرنے میں دشواری ہو رہی ہے۔ (تفصیل: ${error.message})` }]);
+      // یہاں ہم نے واضح میسج دیا ہے
+      setMessages(prev => [...prev, { role: 'bot', text: `معذرت، رابطہ کرنے میں دشواری ہو رہی ہے۔ شاید ماڈل لوڈ نہیں ہو پا رہا۔ (Error: ${error.message})` }]);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#f0f4f0] flex flex-col items-center p-2 sm:p-4 font-sans text-right" dir="rtl">
+    <div className="min-h-screen bg-[#f0f4f0] flex flex-col items-center p-2 sm:p-4 font-sans" dir="rtl">
       
       {/* ہیڈر ڈیزائن */}
       <div className="w-full max-w-2xl bg-gradient-to-b from-[#064e3b] to-[#065f46] text-[#fbbf24] rounded-t-3xl p-6 text-center shadow-2xl border-b-4 border-[#92400e]">
@@ -101,7 +99,7 @@ function App() {
         <div ref={chatEndRef} />
       </div>
 
-      {/* ٹیکسٹ ایریا */}
+      {/* ان پٹ ایریا */}
       <div className="w-full max-w-2xl bg-white p-4 rounded-b-3xl shadow-2xl border-t border-emerald-50">
         <div className="relative flex items-center gap-2">
           <textarea
@@ -115,7 +113,7 @@ function App() {
           <button
             onClick={handleSend}
             disabled={loading}
-            className="p-4 bg-[#064e3b] text-white rounded-2xl hover:bg-emerald-900 shadow-lg active:scale-95 disabled:bg-gray-300"
+            className="p-4 bg-[#064e3b] text-white rounded-2xl hover:bg-emerald-900 shadow-lg active:scale-95 disabled:bg-gray-300 transition-all"
           >
             <Send size={24} />
           </button>
@@ -123,7 +121,7 @@ function App() {
       </div>
 
       {/* کوئیک بٹنز */}
-      <div className="mt-4 grid grid-cols-2 gap-3 w-full max-w-2xl px-2 pb-6">
+      <div className="mt-4 grid grid-cols-2 gap-3 w-full max-w-2xl px-2 pb-6 text-right">
         <button onClick={() => setInput("نام: [نام]، والدہ کا نام: [والدہ]۔ کاروبار کی بندش کا حساب کر دیں۔")} 
           className="flex items-center justify-center gap-2 p-3 bg-white border border-emerald-200 rounded-xl text-sm text-emerald-900 shadow-sm hover:bg-emerald-50">
           <Calculator size={16} /> رزق کی بندش
