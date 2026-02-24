@@ -13,7 +13,6 @@ function App() {
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // خودکار نیچے سکرول کرنے کے لیے
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -21,9 +20,8 @@ function App() {
   const handleSend = async () => {
     if (!input.trim() || loading) return;
 
-    // اگر کی (Key) نہ ملے تو الرٹ دیں
     if (!API_KEY) {
-      setMessages(prev => [...prev, { role: 'bot', text: 'سسٹم کی ترتیب میں غلطی ہے: API Key (VITE_GEMINI_API_KEY) نہیں مل رہی۔ براہ کرم ورسل سیٹنگز چیک کریں۔' }]);
+      setMessages(prev => [...prev, { role: 'bot', text: 'خرابی: API Key (VITE_GEMINI_API_KEY) نہیں مل رہی۔ براہ کرم ورسل سیٹنگز چیک کریں۔' }]);
       return;
     }
 
@@ -33,23 +31,22 @@ function App() {
     setLoading(true);
 
     try {
-      // Gemini AI کو v1 ورژن کے ساتھ ترتیب دیا گیا ہے تاکہ 404 ایرر نہ آئے
+      // یہاں ہم نے apiVersion کو 'v1beta' کر دیا ہے تاکہ 404 ایرر ختم ہو جائے
       const genAI = new GoogleGenerativeAI(API_KEY);
       const model = genAI.getGenerativeModel({ 
         model: "gemini-1.5-flash" 
-      }, { apiVersion: 'v1' });
+      }, { apiVersion: 'v1beta' });
 
-      // روحانی مشیر کے لیے مخصوص ہدایات
-      const prompt = `آپ سلسلہ عالیہ قادریہ رضویہ کے ایک جلیل القدر روحانی معالج اور ماہرِ علم الاعداد ہیں۔
+      const prompt = `آپ سلسلہ عالیہ قادریہ رضویہ کے ایک مستند روحانی معالج اور ماہرِ علم الاعداد ہیں۔
       سائل کا پیغام: "${userMsg}"
       
       آپ کے فرائض:
-      1. سائل کے نام اور والدہ کے نام کے اعداد 'ابجدِ قمری' سے نکال کر واضح لکھیں۔
-      2. ان اعداد سے سائل کا ستارہ اور برج (Zodiac) معلوم کر کے بتائیں۔
+      1. سائل کے نام اور والدہ کے نام کے اعداد 'ابجدِ قمری' سے نکال کر بتائیں۔
+      2. ان اعداد سے سائل کا ستارہ اور برج (Zodiac) واضح کریں۔
       3. موجودہ مسئلے کی روحانی تشخیص کریں (نظرِ بد، حسد یا رکاوٹ)۔
-      4. "سخت وارننگ": کوئی عددی نقش یا مربع ہرگز نہ بنائیں، کیونکہ اس کے لیے زکوٰۃ اور اجازتِ خاص لازم ہے۔
-      5. علاج کے لیے صرف 'اسمائے حسنیٰ'، 'قرآنی آیات' اور 'صدقہ' تجویز کریں۔
-      6. گفتگو کا انداز نہایت مؤدبانہ، مخلصانہ اور دعائیہ رکھیں۔`;
+      4. علاج کے لیے صرف 'اسمائے حسنیٰ'، 'قرآنی آیات' اور 'صدقہ' تجویز کریں۔
+      5. "خاص ہدایت": کوئی عددی نقش یا مربع ہرگز نہ بنائیں کیونکہ اس کے لیے زکوٰۃ لازم ہے۔
+      6. گفتگو کا انداز نہایت مؤدبانہ اور دعائیہ رکھیں۔`;
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
@@ -60,19 +57,20 @@ function App() {
       }
     } catch (error: any) {
       console.error("API Error:", error);
-      setMessages(prev => [...prev, { role: 'bot', text: `معذرت، رابطہ کرنے میں دشواری ہو رہی ہے۔ ایرر: ${error.message}` }]);
+      // یہاں ہم نے واضح میسج دیا ہے تاکہ اگر پھر بھی مسئلہ ہو تو ہمیں پتہ چلے
+      setMessages(prev => [...prev, { role: 'bot', text: `معذرت، رابطہ کرنے میں دشواری ہو رہی ہے۔ (تفصیل: ${error.message})` }]);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#f0f4f0] flex flex-col items-center p-2 sm:p-4 font-sans" dir="rtl">
+    <div className="min-h-screen bg-[#f0f4f0] flex flex-col items-center p-2 sm:p-4 font-sans text-right" dir="rtl">
       
-      {/* روحانی ہیڈر ڈیزائن (سبز اور سنہرا) */}
+      {/* ہیڈر ڈیزائن */}
       <div className="w-full max-w-2xl bg-gradient-to-b from-[#064e3b] to-[#065f46] text-[#fbbf24] rounded-t-3xl p-6 text-center shadow-2xl border-b-4 border-[#92400e]">
         <ShieldCheck size={40} className="mx-auto mb-2 text-[#fbbf24]" />
-        <h1 className="text-3xl sm:text-4xl font-bold drop-shadow-lg" style={{ fontFamily: 'Noto Nastaliq Urdu, sans-serif' }}>سلسلہ قادریہ رضویہ</h1>
+        <h1 className="text-3xl font-bold drop-shadow-lg" style={{ fontFamily: 'Noto Nastaliq Urdu, cursive' }}>سلسلہ قادریہ رضویہ</h1>
         <p className="text-sm text-white/90 tracking-widest mt-1 uppercase">روحانی تشخیص و مشاورتی سینٹر</p>
       </div>
 
@@ -89,42 +87,42 @@ function App() {
                 {m.role === 'user' ? <User size={12} /> : <Bot size={12} />}
                 <span>{m.role === 'user' ? 'سائل' : 'روحانی مشیر'}</span>
               </div>
-              <p className="text-lg leading-[2] whitespace-pre-wrap" style={{ fontFamily: 'Noto Nastaliq Urdu, sans-serif' }}>{m.text}</p>
+              <p className="text-lg leading-[2] whitespace-pre-wrap" style={{ fontFamily: 'Noto Nastaliq Urdu, serif' }}>{m.text}</p>
             </div>
           </div>
         ))}
         {loading && (
           <div className="flex justify-end mb-4 animate-pulse">
             <div className="bg-emerald-50 text-emerald-800 p-4 rounded-2xl border border-emerald-100 italic">
-              حساب و تشخیص جاری ہے، تھوڑا انتظار فرمائیں...
+              حساب جاری ہے، تھوڑا انتظار فرمائیں...
             </div>
           </div>
         )}
         <div ref={chatEndRef} />
       </div>
 
-      {/* سوال لکھنے کی جگہ */}
+      {/* ٹیکسٹ ایریا */}
       <div className="w-full max-w-2xl bg-white p-4 rounded-b-3xl shadow-2xl border-t border-emerald-50">
         <div className="relative flex items-center gap-2">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="نام، والدہ کا نام اور مسئلہ تحریر کریں..."
-            className="w-full p-4 rounded-2xl border-2 border-emerald-50 focus:border-emerald-600 focus:outline-none text-lg resize-none shadow-inner"
+            placeholder="نام، والدہ کا نام اور مسئلہ لکھیں..."
+            className="w-full p-4 rounded-2xl border-2 border-emerald-50 focus:border-emerald-600 outline-none text-lg resize-none"
             rows={2}
             onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
           />
           <button
             onClick={handleSend}
             disabled={loading}
-            className="p-4 bg-[#064e3b] text-white rounded-2xl hover:bg-emerald-900 shadow-lg active:scale-95 disabled:bg-gray-300 transition-all"
+            className="p-4 bg-[#064e3b] text-white rounded-2xl hover:bg-emerald-900 shadow-lg active:scale-95 disabled:bg-gray-300"
           >
             <Send size={24} />
           </button>
         </div>
       </div>
 
-      {/* فوری مدد کے بٹنز */}
+      {/* کوئیک بٹنز */}
       <div className="mt-4 grid grid-cols-2 gap-3 w-full max-w-2xl px-2 pb-6">
         <button onClick={() => setInput("نام: [نام]، والدہ کا نام: [والدہ]۔ کاروبار کی بندش کا حساب کر دیں۔")} 
           className="flex items-center justify-center gap-2 p-3 bg-white border border-emerald-200 rounded-xl text-sm text-emerald-900 shadow-sm hover:bg-emerald-50">
@@ -135,10 +133,6 @@ function App() {
           <Sparkles size={16} /> گھر کا سکون
         </button>
       </div>
-
-      <footer className="mt-4 text-[10px] text-emerald-900/40 text-center pb-4">
-        استخارہ و تشخیص محض ایک علمی کوشش ہے، حتمی علم صرف اللہ تعالیٰ کے پاس ہے
-      </footer>
     </div>
   );
 }
