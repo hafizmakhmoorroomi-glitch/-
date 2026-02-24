@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Send, User, Bot, Sparkles, Calculator, HeartPulse, ShieldCheck } from 'lucide-react';
 
-// آپ کی فراہم کردہ نئی API Key
-const API_KEY = "AIzaSyBKF5TefUj0SPNCnHQV0dtRBfrN509jyhw";
+// یہ تبدیلی انتہائی اہم ہے: اب یہ ورسل کی سیٹنگز سے کی (Key) اٹھائے گا
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "AIzaSyBKF5TefUj0SPNCnHQV0dtRBfrN509jyhw";
 
 function App() {
   const [messages, setMessages] = useState<{ role: 'user' | 'bot', text: string }[]>([
@@ -20,6 +20,12 @@ function App() {
   const handleSend = async () => {
     if (!input.trim() || loading) return;
 
+    // چیک کریں کہ کیا API Key موجود ہے
+    if (!API_KEY) {
+      setMessages(prev => [...prev, { role: 'bot', text: 'خرابی: API Key سیٹ نہیں کی گئی ہے۔ براہ کرم ورسل سیٹنگز چیک کریں۔' }]);
+      return;
+    }
+
     const userMsg = input;
     setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
     setInput('');
@@ -31,7 +37,6 @@ function App() {
         model: "gemini-1.5-flash",
       });
 
-      // روحانی مشیر کے لیے مخصوص ہدایات
       const prompt = `آپ سلسلہ قادریہ رضویہ کے ایک جلیل القدر روحانی معالج اور ماہرِ علم الاعداد ہیں۔
       سائل کا پیغام: "${userMsg}"
       
@@ -52,7 +57,7 @@ function App() {
       }
     } catch (error: any) {
       console.error("Gemini Error:", error);
-      setMessages(prev => [...prev, { role: 'bot', text: 'معذرت، رابطہ کرنے میں دشواری ہو رہی ہے۔ شاید انٹرنیٹ کا مسئلہ ہے یا کی (Key) بلاک ہو گئی ہے۔ براہِ کرم دوبارہ کوشش فرمائیں۔' }]);
+      setMessages(prev => [...prev, { role: 'bot', text: 'معذرت، رابطہ کرنے میں دشواری ہو رہی ہے۔ براہ کرم ورسل (Vercel) کی سیٹنگز میں اپنی نئی API Key دوبارہ چیک کریں اور Redeploy کریں۔' }]);
     } finally {
       setLoading(false);
     }
@@ -61,14 +66,12 @@ function App() {
   return (
     <div className="min-h-screen bg-[#f1f5f1] flex flex-col items-center p-2 sm:p-4 font-['Noto_Nastaliq_Urdu']" dir="rtl">
       
-      {/* روحانی ہیڈر ڈیزائن */}
       <div className="w-full max-w-2xl bg-gradient-to-b from-[#064e3b] to-[#065f46] text-[#fbbf24] rounded-t-3xl p-6 text-center shadow-2xl border-b-4 border-[#92400e]">
         <ShieldCheck size={40} className="mx-auto mb-2 text-[#fbbf24]" />
-        <h1 className="text-3xl sm:text-4xl font-bold drop-shadow-lg">سلسلہ قادریہ رضویہ</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold drop-shadow-lg text-yellow-400">سلسلہ قادریہ رضویہ</h1>
         <p className="text-sm text-white/90 font-sans tracking-widest mt-1 uppercase">روحانی تشخیص و مشاورتی سینٹر</p>
       </div>
 
-      {/* پیغامات کا خانہ */}
       <div className="w-full max-w-2xl bg-white h-[60vh] overflow-y-auto p-4 shadow-xl border-x-2 border-emerald-900/10 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')]">
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.role === 'user' ? 'justify-start' : 'justify-end'} mb-6`}>
@@ -95,7 +98,6 @@ function App() {
         <div ref={chatEndRef} />
       </div>
 
-      {/* سوال لکھنے کی جگہ */}
       <div className="w-full max-w-2xl bg-white p-4 rounded-b-3xl shadow-2xl border-t border-emerald-50">
         <div className="relative flex items-center gap-2">
           <textarea
@@ -116,7 +118,6 @@ function App() {
         </div>
       </div>
 
-      {/* فوری بٹنز */}
       <div className="mt-4 grid grid-cols-2 gap-3 w-full max-w-2xl px-2 pb-6">
         <button onClick={() => setInput("نام: [نام]، والدہ کا نام: [والدہ]۔ کاروبار کی بندش کا حساب کر دیں۔")} 
           className="flex items-center justify-center gap-2 p-3 bg-white border border-emerald-200 rounded-xl text-sm text-emerald-900 shadow-sm">
